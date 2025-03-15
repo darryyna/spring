@@ -3,14 +3,11 @@ package com.example.lab1.mapper;
 import com.example.lab1.DTO.RecommendationDTO;
 import com.example.lab1.model.Recommendation;
 import org.mapstruct.*;
-import org.mapstruct.factory.Mappers;
 
 import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface RecommendationMapper {
-    RecommendationMapper INSTANCE = Mappers.getMapper(RecommendationMapper.class);
-
     @Mapping(source = "user.username", target = "username")
     @Mapping(source = "movie.title", target = "movieTitle")
     RecommendationDTO toDTO(Recommendation recommendation);

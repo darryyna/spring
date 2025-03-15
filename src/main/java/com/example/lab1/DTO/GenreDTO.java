@@ -8,5 +8,4 @@ import lombok.*;
 public class GenreDTO {
     @NotEmpty
     private String name;
-    private String description;
 }

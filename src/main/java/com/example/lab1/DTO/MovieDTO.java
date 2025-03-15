@@ -1,5 +1,6 @@
 package com.example.lab1.DTO;
 
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -18,6 +19,8 @@ public class MovieDTO {
     private LocalDate releaseDate;
     @NotNull
     private Integer duration;
+    @NotNull
+    @Max(10)
     private Double averageRating;
     private List<GenreDTO> genres;
     private List<RatingDTO> ratings;

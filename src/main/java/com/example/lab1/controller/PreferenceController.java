@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
-
 @RestController
 @RequestMapping("/preferences")
 public class PreferenceController {
@@ -37,14 +36,13 @@ public class PreferenceController {
 
     @PutMapping("/{id}")
     public ResponseEntity<PreferenceDTO> updatePreference(@PathVariable Long id, @RequestBody PreferenceDTO preferenceDTO) {
-        return ResponseEntity.ok(preferenceMapper.toDTO(
-                preferenceService.updatePreference(id, preferenceMapper.toEntity(preferenceDTO))));
+        Preference updatedPreference = preferenceService.updatePreference(id, preferenceDTO);
+        return ResponseEntity.ok(preferenceMapper.toDTO(updatedPreference));
     }
 
     @PostMapping
     public ResponseEntity<PreferenceDTO> createPreference(@RequestBody PreferenceDTO preferenceDTO) {
-        PreferenceDTO createdPreference = preferenceMapper.toDTO(
-                preferenceService.createPreference(preferenceMapper.toEntity(preferenceDTO)));
-        return new ResponseEntity<>(createdPreference, HttpStatus.CREATED);
+        Preference createdPreference = preferenceService.createPreference(preferenceDTO);
+        return new ResponseEntity<>(preferenceMapper.toDTO(createdPreference), HttpStatus.CREATED);
     }
 }

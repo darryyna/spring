@@ -34,7 +34,6 @@ public interface MovieMapper {
                 .map(movieGenre -> {
                     GenreDTO genreDTO = new GenreDTO();
                     genreDTO.setName(movieGenre.getGenre().getName());
-                    genreDTO.setDescription(movieGenre.getGenre().getDescription());
                     return genreDTO;
                 })
                 .collect(Collectors.toList());

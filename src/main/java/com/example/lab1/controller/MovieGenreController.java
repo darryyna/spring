@@ -1,16 +1,20 @@
 package com.example.lab1.controller;
 
+import com.example.lab1.DTO.GenreDTO;
 import com.example.lab1.DTO.MovieGenreDTO;
 import com.example.lab1.mapper.MovieGenreMapper;
 import com.example.lab1.model.Genre;
 import com.example.lab1.model.Movie;
 import com.example.lab1.model.MovieGenre;
+import com.example.lab1.service.GenreService;
 import com.example.lab1.service.MovieGenreService;
+import com.example.lab1.service.MovieService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,11 +23,16 @@ import java.util.stream.Collectors;
 public class MovieGenreController {
     private final MovieGenreService movieGenreService;
     private final MovieGenreMapper movieGenreMapper;
+    private final MovieService movieService;
+    private final GenreService genreService;
 
     @Autowired
-    public MovieGenreController(MovieGenreService movieGenreService, MovieGenreMapper movieGenreMapper) {
+    public MovieGenreController(MovieGenreService movieGenreService, MovieGenreMapper movieGenreMapper,
+                                MovieService movieService, GenreService genreService) {
         this.movieGenreService = movieGenreService;
         this.movieGenreMapper = movieGenreMapper;
+        this.movieService = movieService;
+        this.genreService = genreService;
     }
 
     @GetMapping
@@ -58,9 +67,25 @@ public class MovieGenreController {
     }
 
     @PostMapping
-    public ResponseEntity<MovieGenre> createMovieGenre(@RequestBody MovieGenre movieGenre) {
-        MovieGenre createdMovieGenre = movieGenreService.createMovieGenre(movieGenre);
-        return new ResponseEntity<>(createdMovieGenre, HttpStatus.CREATED);
+    public ResponseEntity<List<MovieGenreDTO>> createMovieGenre(@RequestBody MovieGenreDTO movieGenreDTO) {
+        List<MovieGenreDTO> createdDTOs = new ArrayList<>();
+        List<GenreDTO> genreDTOs = new ArrayList<>(movieGenreDTO.getGenres());
+
+        for (GenreDTO genreDTO : genreDTOs) {
+            MovieGenreDTO singleGenreDTO = new MovieGenreDTO();
+            singleGenreDTO.setMovieTitle(movieGenreDTO.getMovieTitle());
+            singleGenreDTO.setGenres(List.of(genreDTO));
+
+            MovieGenre movieGenre = movieGenreMapper.toEntity(singleGenreDTO, movieService, genreService);
+            MovieGenre createdMovieGenre = movieGenreService.createMovieGenre(movieGenre);
+
+            Movie movie = createdMovieGenre.getMovie();
+            List<Genre> genres = List.of(createdMovieGenre.getGenre());
+            MovieGenreDTO createdDTO = movieGenreMapper.toDTO(movie, genres);
+            createdDTOs.add(createdDTO);
+        }
+
+        return new ResponseEntity<>(createdDTOs, HttpStatus.CREATED);
     }
 }
 

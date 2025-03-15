@@ -31,16 +31,30 @@ public interface MovieGenreMapper {
                 .map(genre -> {
                     GenreDTO genreDTO = new GenreDTO();
                     genreDTO.setName(genre.getName());
-                    genreDTO.setDescription(genre.getDescription());
                     return genreDTO;
                 })
                 .collect(Collectors.toList());
     }
 
-//    // Перетворення MovieGenreDTO в сутність MovieGenre
-//    @Mapping(source = "movieTitle", target = "movie")
-//    @Mapping(source = "genres", target = "genre")
-//    MovieGenre toEntity(MovieGenreDTO movieGenreDTO, @Context MovieService movieService, @Context GenreService genreService);
+    @Mapping(source = "movieTitle", target = "movie", qualifiedByName = "movieTitleToMovie")
+    @Mapping(source = "genres", target = "genre", qualifiedByName = "genreDTOsToGenre")
+    MovieGenre toEntity(MovieGenreDTO movieGenreDTO, @Context MovieService movieService, @Context GenreService genreService);
 
+    @Named("movieTitleToMovie")
+    default Movie movieTitleToMovie(String movieTitle, @Context MovieService movieService) {
+        List<Movie> movies = movieService.findByTitle(movieTitle);
+        if (movies != null && !movies.isEmpty()) {
+            return movies.get(0);
+        } else {
+            return null;
+        }
+    }
+
+    @Named("genreDTOsToGenre")
+    default Genre genreDTOsToGenre(List<GenreDTO> genreDTOs, @Context GenreService genreService) {
+        if (genreDTOs == null || genreDTOs.isEmpty()) {
+            return null;
+        }
+        return genreService.findByName(genreDTOs.get(0).getName());
+    }
 }
-
