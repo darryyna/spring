@@ -1,6 +1,5 @@
 package com.example.lab1.service;
 
-import com.example.lab1.model.Movie;
 import com.example.lab1.model.Preference;
 import com.example.lab1.repository.PreferenceRepository;
 import org.springframework.stereotype.Service;
@@ -30,8 +29,7 @@ public class PreferenceService {
             preference.setPreferenceId(id);
             return preferenceRepository.save(preference);
         } else {
-            throw new RuntimeException("Movie with id " + id + " not found");
+            throw new RuntimeException("Preference with id " + id + " not found");
         }
     }
 }
-

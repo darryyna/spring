@@ -11,7 +11,6 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@JsonIgnoreProperties({"movieGenres", "ratings"})
 @Table(name = "movies")
 public class Movie {
 

@@ -1,18 +1,16 @@
 package com.example.lab1.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
 @Entity
 @Table(name = "users")
-@JsonIgnoreProperties({"ratings", "preferences", "recommendations"})
 public class User {
 
     @Id
@@ -29,13 +27,13 @@ public class User {
     @Column(name = "password", nullable = false)
     private String password;
 
-    @OneToMany(mappedBy = "user")
-    private Set<Rating> ratings = new HashSet<>();
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private List<Rating> ratings = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user")
-    private Set<Preference> preferences = new HashSet<>();
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private List<Preference> preferences = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user")
-    private Set<Recommendation> recommendations = new HashSet<>();
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private List<Recommendation> recommendations = new ArrayList<>();
 
 }

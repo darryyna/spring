@@ -11,6 +11,14 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 @Repository
 public interface MovieGenreRepository extends JpaRepository<MovieGenre, Long> {
-    @Query("SELECT mg.genre FROM MovieGenre mg WHERE mg.movie.movieId = :movieId")
+    @Query("SELECT g FROM Genre g JOIN MovieGenre mg ON mg.genre.genreId = g.genreId WHERE mg.movie.movieId = :movieId")
     List<Genre> findGenresByMovieId(@Param("movieId") Long movieId);
+
+    @Query("SELECT mg.movie FROM MovieGenre mg WHERE mg.genre.genreId = :genreId")
+    List<Movie> findMoviesByGenreId(@Param("genreId") Long genreId);
+
+    List<MovieGenre> findByMovie_MovieId(Long movieId);
+
+    List<MovieGenre> findByMovie(Movie movie);
+
 }

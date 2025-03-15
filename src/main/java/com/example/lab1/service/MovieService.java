@@ -24,6 +24,10 @@ public class MovieService {
         return movieRepository.findByTitle(title);
     }
 
+    public Optional<Movie> findMovieByTitle(String title) {
+        return movieRepository.findMovieByTitle(title);
+    }
+
     public List<Movie> findByMinimumRating(Double minRating) {
         return movieRepository.findByMinimumRating(minRating);
     }
@@ -47,4 +51,3 @@ public class MovieService {
     }
 
 }
-
