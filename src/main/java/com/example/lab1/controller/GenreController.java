@@ -2,6 +2,7 @@ package com.example.lab1.controller;
 
 import com.example.lab1.DTO.GenreDTO;
 import com.example.lab1.mapper.GenreMapper;
+import com.example.lab1.model.Genre;
 import com.example.lab1.service.GenreService;
 import com.example.lab1.service.customException.DuplicateResourceException;
 import com.example.lab1.service.customException.ResourceNotFoundException;
@@ -31,7 +32,7 @@ public class GenreController {
 
     @GetMapping("/{name}")
     public ResponseEntity<GenreDTO> getGenreByName(@PathVariable String name) throws ResourceNotFoundException {
-        var genre = genreService.findByName(name);
+        Genre genre = genreService.findByName(name);
         return genre != null ?
                 ResponseEntity.ok(genreMapper.toDTO(genre)) :
                 ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -39,7 +40,7 @@ public class GenreController {
 
     @PostMapping
     public ResponseEntity<GenreDTO> createGenre(@RequestBody GenreDTO genreDTO) throws DuplicateResourceException {
-        var savedGenre = genreService.save(genreMapper.toEntity(genreDTO));
+        Genre savedGenre = genreService.save(genreMapper.toEntity(genreDTO));
         return ResponseEntity.status(HttpStatus.CREATED).body(genreMapper.toDTO(savedGenre));
     }
 
