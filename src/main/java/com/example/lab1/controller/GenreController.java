@@ -3,6 +3,8 @@ package com.example.lab1.controller;
 import com.example.lab1.DTO.GenreDTO;
 import com.example.lab1.mapper.GenreMapper;
 import com.example.lab1.service.GenreService;
+import com.example.lab1.service.customException.DuplicateResourceException;
+import com.example.lab1.service.customException.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +30,7 @@ public class GenreController {
     }
 
     @GetMapping("/{name}")
-    public ResponseEntity<GenreDTO> getGenreByName(@PathVariable String name) {
+    public ResponseEntity<GenreDTO> getGenreByName(@PathVariable String name) throws ResourceNotFoundException {
         var genre = genreService.findByName(name);
         return genre != null ?
                 ResponseEntity.ok(genreMapper.toDTO(genre)) :
@@ -36,13 +38,13 @@ public class GenreController {
     }
 
     @PostMapping
-    public ResponseEntity<GenreDTO> createGenre(@RequestBody GenreDTO genreDTO) {
+    public ResponseEntity<GenreDTO> createGenre(@RequestBody GenreDTO genreDTO) throws DuplicateResourceException {
         var savedGenre = genreService.save(genreMapper.toEntity(genreDTO));
         return ResponseEntity.status(HttpStatus.CREATED).body(genreMapper.toDTO(savedGenre));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteGenre(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteGenre(@PathVariable Long id) throws ResourceNotFoundException {
         genreService.deleteById(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }

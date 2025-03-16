@@ -18,4 +18,6 @@ public interface MovieGenreRepository extends JpaRepository<MovieGenre, Long> {
     List<Movie> findMoviesByGenreId(@Param("genreId") Long genreId);
 
     List<MovieGenre> findByMovie_MovieId(Long movieId);
+
+    boolean existsByMovieAndGenre(Movie movie, Genre genre);
 }

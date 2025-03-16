@@ -7,6 +7,7 @@ import com.example.lab1.model.Movie;
 import com.example.lab1.model.MovieGenre;
 import com.example.lab1.service.GenreService;
 import com.example.lab1.service.MovieService;
+import com.example.lab1.service.customException.ResourceNotFoundException;
 import org.mapstruct.Context;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -41,7 +42,7 @@ public interface MovieGenreMapper {
     MovieGenre toEntity(MovieGenreDTO movieGenreDTO, @Context MovieService movieService, @Context GenreService genreService);
 
     @Named("movieTitleToMovie")
-    default Movie movieTitleToMovie(String movieTitle, @Context MovieService movieService) {
+    default Movie movieTitleToMovie(String movieTitle, @Context MovieService movieService) throws ResourceNotFoundException {
         List<Movie> movies = movieService.findByTitle(movieTitle);
         if (movies != null && !movies.isEmpty()) {
             return movies.get(0);
@@ -51,7 +52,7 @@ public interface MovieGenreMapper {
     }
 
     @Named("genreDTOsToGenre")
-    default Genre genreDTOsToGenre(List<GenreDTO> genreDTOs, @Context GenreService genreService) {
+    default Genre genreDTOsToGenre(List<GenreDTO> genreDTOs, @Context GenreService genreService) throws ResourceNotFoundException {
         if (genreDTOs == null || genreDTOs.isEmpty()) {
             return null;
         }

@@ -4,6 +4,8 @@ import com.example.lab1.DTO.PreferenceDTO;
 import com.example.lab1.mapper.PreferenceMapper;
 import com.example.lab1.model.Preference;
 import com.example.lab1.service.PreferenceService;
+import com.example.lab1.service.customException.DuplicateResourceException;
+import com.example.lab1.service.customException.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +25,7 @@ public class PreferenceController {
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<?> getPreferencesByUser(@PathVariable Long userId) {
+    public ResponseEntity<?> getPreferencesByUser(@PathVariable Long userId) throws ResourceNotFoundException {
         List<Preference> preferences = preferenceService.findByUser(userId);
 
         if (preferences.isEmpty()) {
@@ -35,13 +37,13 @@ public class PreferenceController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PreferenceDTO> updatePreference(@PathVariable Long id, @RequestBody PreferenceDTO preferenceDTO) {
+    public ResponseEntity<PreferenceDTO> updatePreference(@PathVariable Long id, @RequestBody PreferenceDTO preferenceDTO) throws ResourceNotFoundException {
         Preference updatedPreference = preferenceService.updatePreference(id, preferenceDTO);
         return ResponseEntity.ok(preferenceMapper.toDTO(updatedPreference));
     }
 
     @PostMapping
-    public ResponseEntity<PreferenceDTO> createPreference(@RequestBody PreferenceDTO preferenceDTO) {
+    public ResponseEntity<PreferenceDTO> createPreference(@RequestBody PreferenceDTO preferenceDTO) throws DuplicateResourceException {
         Preference createdPreference = preferenceService.createPreference(preferenceDTO);
         return new ResponseEntity<>(preferenceMapper.toDTO(createdPreference), HttpStatus.CREATED);
     }

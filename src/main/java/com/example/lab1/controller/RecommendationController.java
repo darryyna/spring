@@ -8,6 +8,7 @@ import com.example.lab1.mapper.RecommendationMapper;
 import com.example.lab1.service.MovieService;
 import com.example.lab1.service.RecommendationService;
 import com.example.lab1.service.UserService;
+import com.example.lab1.service.customException.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -35,7 +36,7 @@ public class RecommendationController {
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<RecommendationDTO>> getRecommendationsByUser(@PathVariable Long userId) {
+    public ResponseEntity<List<RecommendationDTO>> getRecommendationsByUser(@PathVariable Long userId) throws ResourceNotFoundException {
         List<Recommendation> recommendations = recommendationService.findByUser(userId);
         if (recommendations.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -43,22 +44,23 @@ public class RecommendationController {
         return ResponseEntity.ok(recommendationMapper.toDTOList(recommendations));
     }
 
-    @GetMapping("/username/{username}")
-    public ResponseEntity<List<RecommendationDTO>> getRecommendationsByUsername(@PathVariable String username) {
-        Optional<User> userOptional = userService.findByUsername(username);
-        if (userOptional.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+//    @GetMapping("/username/{username}")
+//    public ResponseEntity<List<RecommendationDTO>> getRecommendationsByUsername(@PathVariable String username) throws ResourceNotFoundException {
+//        Optional<User> userOptional = userService.findByUsername(username);
+//        if (userOptional.isEmpty()) {
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+//        }
+//
+//        List<Recommendation> recommendations = recommendationService.findByUser(userOptional.get().getUserId());
+//        if (recommendations.isEmpty()) {
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+//        }
+//
+//        return ResponseEntity.ok(recommendationMapper.toDTOList(recommendations));
+//    }
 
-        List<Recommendation> recommendations = recommendationService.findByUser(userOptional.get().getUserId());
-        if (recommendations.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-
-        return ResponseEntity.ok(recommendationMapper.toDTOList(recommendations));
-    }
     @PostMapping
-    public ResponseEntity<RecommendationDTO> createRecommendation(@RequestBody RecommendationDTO recommendationDTO) {
+    public ResponseEntity<RecommendationDTO> createRecommendation(@RequestBody RecommendationDTO recommendationDTO) throws ResourceNotFoundException {
         Optional<User> userOptional = userService.findByUsername(recommendationDTO.getUsername());
         if (userOptional.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();

@@ -50,6 +50,8 @@ public interface MovieMapper {
                     ratingDTO.setScore(rating.getScore());
                     ratingDTO.setComment(rating.getComment());
                     ratingDTO.setRatingDate(rating.getRatingDate());
+                    ratingDTO.setUsername(rating.getUser().getUsername());
+                    ratingDTO.setMovieTitle(rating.getMovie().getTitle());
                     return ratingDTO;
                 })
                 .collect(Collectors.toList());

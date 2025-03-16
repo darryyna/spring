@@ -9,6 +9,8 @@ import com.example.lab1.model.MovieGenre;
 import com.example.lab1.service.GenreService;
 import com.example.lab1.service.MovieGenreService;
 import com.example.lab1.service.MovieService;
+import com.example.lab1.service.customException.DuplicateResourceException;
+import com.example.lab1.service.customException.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/movieGenres")
@@ -39,19 +40,23 @@ public class MovieGenreController {
     public ResponseEntity<List<MovieGenreDTO>> getAllMovieGenres() {
         List<MovieGenre> movieGenres = movieGenreService.findAll();
 
-        List<MovieGenreDTO> movieGenreDTOs = movieGenres.stream()
-                .map(movieGenre -> {
-                    Movie movie = movieGenre.getMovie();
-                    List<Genre> genres = movieGenreService.findGenresByMovieId(movie.getMovieId());
-                    return movieGenreMapper.toDTO(movie, genres);
-                })
-                .collect(Collectors.toList());
+        List<MovieGenreDTO> movieGenreDTOs = new ArrayList<>();
+
+        for (MovieGenre movieGenre : movieGenres) {
+            try {
+                Movie movie = movieGenre.getMovie();
+                List<Genre> genres = movieGenreService.findGenresByMovieId(movie.getMovieId());
+                movieGenreDTOs.add(movieGenreMapper.toDTO(movie, genres));
+            } catch (ResourceNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
 
         return ResponseEntity.ok(movieGenreDTOs);
     }
 
     @GetMapping("/movie/{movieId}/details")
-    public ResponseEntity<MovieGenreDTO> getMovieWithGenres(@PathVariable Long movieId) {
+    public ResponseEntity<MovieGenreDTO> getMovieWithGenres(@PathVariable Long movieId) throws ResourceNotFoundException {
         Movie movie = movieGenreService.findMovieById(movieId);
         List<Genre> genres = movieGenreService.findGenresByMovieId(movieId);
         MovieGenreDTO dto = movieGenreMapper.toDTO(movie, genres);
@@ -59,7 +64,7 @@ public class MovieGenreController {
     }
 
     @GetMapping("/movie/{title}")
-    public ResponseEntity<MovieGenreDTO> getMovieWithGenresByTitle(@PathVariable String title) {
+    public ResponseEntity<MovieGenreDTO> getMovieWithGenresByTitle(@PathVariable String title) throws ResourceNotFoundException {
         Movie movie = movieGenreService.findMovieByTitle(title);
         List<Genre> genres = movieGenreService.findGenresByMovieId(movie.getMovieId());
         MovieGenreDTO dto = movieGenreMapper.toDTO(movie, genres);
@@ -67,7 +72,7 @@ public class MovieGenreController {
     }
 
     @PostMapping
-    public ResponseEntity<List<MovieGenreDTO>> createMovieGenre(@RequestBody MovieGenreDTO movieGenreDTO) {
+    public ResponseEntity<List<MovieGenreDTO>> createMovieGenre(@RequestBody MovieGenreDTO movieGenreDTO) throws DuplicateResourceException {
         List<MovieGenreDTO> createdDTOs = new ArrayList<>();
         List<GenreDTO> genreDTOs = new ArrayList<>(movieGenreDTO.getGenres());
 

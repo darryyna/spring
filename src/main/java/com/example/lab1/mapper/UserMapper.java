@@ -7,17 +7,11 @@ import org.mapstruct.Mapping;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring", uses = {RatingMapper.class, PreferenceMapper.class, RecommendationMapper.class})
+@Mapper(componentModel = "spring")
 public interface UserMapper {
-    @Mapping(target = "ratings", source = "ratings")
-    @Mapping(target = "preferences", source = "preferences")
-    @Mapping(target = "recommendations", source = "recommendations")
     UserDTO toDTO(User user);
 
     @Mapping(target = "userId", ignore = true)
-    @Mapping(target = "ratings", ignore = true)
-    @Mapping(target = "preferences", ignore = true)
-    @Mapping(target = "recommendations", ignore = true)
     User toEntity(UserDTO userDTO);
 
     List<UserDTO> toDTOList(List<User> users);

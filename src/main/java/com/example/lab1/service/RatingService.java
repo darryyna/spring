@@ -6,6 +6,8 @@ import com.example.lab1.model.User;
 import com.example.lab1.repository.MovieRepository;
 import com.example.lab1.repository.RatingRepository;
 import com.example.lab1.repository.UserRepository;
+import com.example.lab1.service.customException.DuplicateResourceException;
+import com.example.lab1.service.customException.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -30,12 +32,16 @@ public class RatingService {
         return ratingRepository.findAll();
     }
 
-    public Rating createRating(Rating rating, String username, String movieTitle) {
+    public Rating createRating(Rating rating, String username, String movieTitle) throws DuplicateResourceException {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with username: " + username));
 
         Movie movie = movieRepository.findMovieByTitle(movieTitle)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Movie not found with title: " + movieTitle));
+
+        if (ratingRepository.existsByUserAndMovie(user, movie)) {
+            throw new DuplicateResourceException("User has already rated this movie.");
+        }
 
         rating.setUser(user);
         rating.setMovie(movie);
@@ -43,7 +49,10 @@ public class RatingService {
         return ratingRepository.save(rating);
     }
 
-    public List<Rating> findRatingsByMovieId(Long movieId) {
+    public List<Rating> findRatingsByMovieId(Long movieId) throws ResourceNotFoundException {
+        if (!movieRepository.existsById(movieId)) {
+            throw new ResourceNotFoundException("Movie with id " + movieId + " not found");
+        }
         return ratingRepository.findRatingsByMovie_MovieId(movieId);
     }
 }

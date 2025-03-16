@@ -4,6 +4,7 @@ import com.example.lab1.DTO.RatingDTO;
 import com.example.lab1.mapper.RatingMapper;
 import com.example.lab1.model.Rating;
 import com.example.lab1.service.RatingService;
+import com.example.lab1.service.customException.DuplicateResourceException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,7 +32,7 @@ public class RatingController {
     }
 
     @PostMapping
-    public ResponseEntity<RatingDTO> createRating(@RequestBody RatingDTO ratingDTO) {
+    public ResponseEntity<RatingDTO> createRating(@RequestBody RatingDTO ratingDTO) throws DuplicateResourceException {
         Rating rating = new Rating();
         rating.setScore(ratingDTO.getScore());
         rating.setComment(ratingDTO.getComment());

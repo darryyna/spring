@@ -9,6 +9,8 @@ import com.example.lab1.model.User;
 import com.example.lab1.repository.GenreRepository;
 import com.example.lab1.repository.PreferenceRepository;
 import com.example.lab1.repository.UserRepository;
+import com.example.lab1.service.customException.DuplicateResourceException;
+import com.example.lab1.service.customException.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -33,55 +35,51 @@ public class PreferenceService {
         this.preferenceMapper = preferenceMapper;
     }
 
-    public List<Preference> findByUser(Long userId) {
+    public List<Preference> findByUser(Long userId) throws ResourceNotFoundException {
+        preferenceRepository.findById(userId);
+        if(!userRepository.existsById(userId)) {
+            throw new ResourceNotFoundException("User with id " + userId + " not found");
+        }
         return preferenceRepository.findByUser_UserId(userId);
     }
 
-    public Preference createPreference(PreferenceDTO preferenceDTO) {
-        Preference preference = preferenceMapper.toEntity(preferenceDTO);
+    public Preference createPreference(PreferenceDTO preferenceDTO) throws DuplicateResourceException {
+        String username = preferenceDTO.getUsername();
+        Optional<Preference> existingUserPreference = preferenceRepository.findByUserUsername(username);
 
+        if (existingUserPreference.isPresent()) {
+            throw new DuplicateResourceException("Preferences for user '" + username + "' already exist");
+        }
+        Preference preference = preferenceMapper.toEntity(preferenceDTO);
+        return getPreference(preferenceDTO, preference);
+    }
+
+    public Preference updatePreference(Long id, PreferenceDTO preferenceDTO) throws ResourceNotFoundException {
+        Optional<Preference> existingPreferenceOpt = preferenceRepository.findById(id);
+        if (existingPreferenceOpt.isPresent()) {
+            Preference updatedPreference = preferenceMapper.toEntity(preferenceDTO);
+            updatedPreference.setPreferenceId(id);
+
+            return getPreference(preferenceDTO, updatedPreference);
+        } else {
+            throw new ResourceNotFoundException("Preference with id " + id + " not found");
+        }
+    }
+
+    private Preference getPreference(PreferenceDTO preferenceDTO, Preference updatedPreference) {
         User user = userRepository.findByUsername(preferenceDTO.getUsername())
                 .orElseThrow(() -> new RuntimeException("User with username " + preferenceDTO.getUsername() + " not found"));
-        preference.setUser(user);
+        updatedPreference.setUser(user);
+
         if (preferenceDTO.getGenres() != null && !preferenceDTO.getGenres().isEmpty()) {
             GenreDTO genreDTO = preferenceDTO.getGenres().get(0);
             Genre genre = genreRepository.findByName(genreDTO.getName());
             if (genre == null) {
                 throw new RuntimeException("Genre with name " + genreDTO.getName() + " not found");
             }
-            preference.setGenre(genre);
+            updatedPreference.setGenre(genre);
         }
 
-        return preferenceRepository.save(preference);
-    }
-
-    public Preference updatePreference(Long id, PreferenceDTO preferenceDTO) {
-        Optional<Preference> existingPreferenceOpt = preferenceRepository.findById(id);
-        if (existingPreferenceOpt.isPresent()) {
-            Preference existingPreference = existingPreferenceOpt.get();
-            Preference updatedPreference = preferenceMapper.toEntity(preferenceDTO);
-            updatedPreference.setPreferenceId(id);
-
-            User user = userRepository.findByUsername(preferenceDTO.getUsername())
-                    .orElseThrow(() -> new RuntimeException("User with username " + preferenceDTO.getUsername() + " not found"));
-            updatedPreference.setUser(user);
-
-            if (preferenceDTO.getGenres() != null && !preferenceDTO.getGenres().isEmpty()) {
-                GenreDTO genreDTO = preferenceDTO.getGenres().get(0);
-                Genre genre = genreRepository.findByName(genreDTO.getName());
-                if (genre == null) {
-                    throw new RuntimeException("Genre with name " + genreDTO.getName() + " not found");
-                }
-                updatedPreference.setGenre(genre);
-            }
-
-            return preferenceRepository.save(updatedPreference);
-        } else {
-            throw new RuntimeException("Preference with id " + id + " not found");
-        }
-    }
-
-    public Preference createPreference(Preference preference) {
-        return preferenceRepository.save(preference);
+        return preferenceRepository.save(updatedPreference);
     }
 }
