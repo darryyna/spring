@@ -16,4 +16,6 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
     @Query("SELECT m FROM Movie m WHERE m.averageRating >= :minRating")
     List<Movie> findByMinimumRating(Double minRating);
 
+    Movie findByMovieId(Long movieId);
+
 }

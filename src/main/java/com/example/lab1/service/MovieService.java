@@ -75,4 +75,11 @@ public class MovieService {
         movieRepository.deleteById(id);
     }
 
+    public Movie findMovieByMovieId(Long movieId) throws ResourceNotFoundException {
+        if(movieRepository.findByMovieId(movieId) == null) {
+            throw new ResourceNotFoundException("Movie with id " + movieId + " not found");
+        }
+        return movieRepository.findByMovieId(movieId);
+    }
+
 }

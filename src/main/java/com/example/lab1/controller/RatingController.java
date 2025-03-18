@@ -5,6 +5,7 @@ import com.example.lab1.mapper.RatingMapper;
 import com.example.lab1.model.Rating;
 import com.example.lab1.service.RatingService;
 import com.example.lab1.service.customException.DuplicateResourceException;
+import com.example.lab1.service.customException.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,14 +33,15 @@ public class RatingController {
     }
 
     @PostMapping
-    public ResponseEntity<RatingDTO> createRating(@RequestBody RatingDTO ratingDTO) throws DuplicateResourceException {
-        Rating rating = new Rating();
-        rating.setScore(ratingDTO.getScore());
-        rating.setComment(ratingDTO.getComment());
-        rating.setRatingDate(ratingDTO.getRatingDate());
-
-        Rating createdRating = ratingService.createRating(rating, ratingDTO.getUsername(), ratingDTO.getMovieTitle());
+    public ResponseEntity<RatingDTO> createRating(@RequestBody RatingDTO ratingDTO) throws DuplicateResourceException, ResourceNotFoundException {
+        Rating createdRating = ratingService.createRating(ratingDTO);
         RatingDTO createdRatingDTO = ratingMapper.toDTO(createdRating);
         return new ResponseEntity<>(createdRatingDTO, HttpStatus.CREATED);
+    }
+
+    @PutMapping("/{ratingId}")
+    public ResponseEntity<Rating> updateRating(@PathVariable Long ratingId, @RequestBody Rating rating) throws ResourceNotFoundException {
+        Rating updatedRating = ratingService.updateRating(ratingId, rating);
+        return ResponseEntity.ok(updatedRating);
     }
 }

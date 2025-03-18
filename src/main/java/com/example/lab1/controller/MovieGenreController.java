@@ -92,5 +92,11 @@ public class MovieGenreController {
 
         return new ResponseEntity<>(createdDTOs, HttpStatus.CREATED);
     }
+
+    @PutMapping("/{movieGenreId}")
+    public ResponseEntity<MovieGenre> updateMovieGenre(@PathVariable Long movieGenreId, @RequestBody MovieGenre movieGenre) throws ResourceNotFoundException {
+        MovieGenre updatedMovieGenre = movieGenreService.updateMovieGenre(movieGenreId, movieGenre);
+        return ResponseEntity.ok(updatedMovieGenre);
+    }
 }
 

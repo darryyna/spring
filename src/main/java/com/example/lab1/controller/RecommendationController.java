@@ -44,21 +44,6 @@ public class RecommendationController {
         return ResponseEntity.ok(recommendationMapper.toDTOList(recommendations));
     }
 
-//    @GetMapping("/username/{username}")
-//    public ResponseEntity<List<RecommendationDTO>> getRecommendationsByUsername(@PathVariable String username) throws ResourceNotFoundException {
-//        Optional<User> userOptional = userService.findByUsername(username);
-//        if (userOptional.isEmpty()) {
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-//        }
-//
-//        List<Recommendation> recommendations = recommendationService.findByUser(userOptional.get().getUserId());
-//        if (recommendations.isEmpty()) {
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-//        }
-//
-//        return ResponseEntity.ok(recommendationMapper.toDTOList(recommendations));
-//    }
-
     @PostMapping
     public ResponseEntity<RecommendationDTO> createRecommendation(@RequestBody RecommendationDTO recommendationDTO) throws ResourceNotFoundException {
         Optional<User> userOptional = userService.findByUsername(recommendationDTO.getUsername());

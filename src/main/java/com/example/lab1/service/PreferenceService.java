@@ -35,9 +35,13 @@ public class PreferenceService {
         this.preferenceMapper = preferenceMapper;
     }
 
+    public Preference findPreferenceById(Long preferenceId) throws ResourceNotFoundException {
+        return preferenceRepository.findById(preferenceId)
+                .orElseThrow(() -> new ResourceNotFoundException("Preference with id " + preferenceId + " not found"));
+    }
+
     public List<Preference> findByUser(Long userId) throws ResourceNotFoundException {
-        preferenceRepository.findById(userId);
-        if(!userRepository.existsById(userId)) {
+        if (!userRepository.existsById(userId)) {
             throw new ResourceNotFoundException("User with id " + userId + " not found");
         }
         return preferenceRepository.findByUser_UserId(userId);
@@ -54,16 +58,10 @@ public class PreferenceService {
         return getPreference(preferenceDTO, preference);
     }
 
-    public Preference updatePreference(Long id, PreferenceDTO preferenceDTO) throws ResourceNotFoundException {
-        Optional<Preference> existingPreferenceOpt = preferenceRepository.findById(id);
-        if (existingPreferenceOpt.isPresent()) {
-            Preference updatedPreference = preferenceMapper.toEntity(preferenceDTO);
-            updatedPreference.setPreferenceId(id);
-
-            return getPreference(preferenceDTO, updatedPreference);
-        } else {
-            throw new ResourceNotFoundException("Preference with id " + id + " not found");
-        }
+    public Preference updatePreference(Long preferenceId, Preference preference) throws ResourceNotFoundException {
+        Preference existingPreference = findPreferenceById(preferenceId); // використовуємо метод для перевірки преференса
+        preference.setPreferenceId(existingPreference.getPreferenceId());
+        return preferenceRepository.save(preference);
     }
 
     private Preference getPreference(PreferenceDTO preferenceDTO, Preference updatedPreference) {

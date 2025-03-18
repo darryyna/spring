@@ -92,17 +92,10 @@ public class MovieController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<MovieDTO> updateMovie(@PathVariable Long id, @RequestBody MovieDTO movieDTO) throws ResourceNotFoundException {
-        Movie movie = new Movie();
-        movie.setMovieId(id);
-        movie.setTitle(movieDTO.getTitle());
-        movie.setDescription(movieDTO.getDescription());
-        movie.setReleaseDate(movieDTO.getReleaseDate());
-        movie.setDuration(movieDTO.getDuration());
-        movie.setAverageRating(movieDTO.getAverageRating());
+    public ResponseEntity<Movie> updateMovie(@PathVariable Long id, @RequestBody Movie movie) throws ResourceNotFoundException, DuplicateResourceException {
+        movieService.findMovieByMovieId(id);
         Movie updatedMovie = movieService.updateMovie(id, movie);
-
-        return ResponseEntity.ok(movieMapper.toDTO(updatedMovie, List.of(), List.of()));
+        return ResponseEntity.ok(updatedMovie);
     }
 
     @DeleteMapping("/{id}")

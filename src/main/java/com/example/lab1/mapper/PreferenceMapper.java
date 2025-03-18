@@ -28,25 +28,9 @@ public interface PreferenceMapper {
 
     @Named("toGroupedUserPreferences")
     default Map<String, Object> toGroupedUserPreferences(List<Preference> preferences) {
-        if (preferences == null || preferences.isEmpty()) {
-            return Collections.emptyMap();
-        }
-
-        List<PreferenceDTO> dtoList = toDTOList(preferences);
-
-        List<PreferenceDTO> cleanedDtos = dtoList.stream()
-                .map(dto -> {
-                    PreferenceDTO cleaned = new PreferenceDTO();
-                    cleaned.setUsername(dto.getUsername());
-                    cleaned.setGenres(dto.getGenres());
-                    cleaned.setPreferredMaxDuration(dto.getPreferredMaxDuration());
-                    cleaned.setPreferredMinYear(dto.getPreferredMinYear());
-                    cleaned.setPreferredMaxYear(dto.getPreferredMaxYear());
-                    cleaned.setPreferredMaxRating(dto.getPreferredMaxRating());
-                    return cleaned;
-                })
-                .toList();
-        return Map.of("preferences", cleanedDtos);
+        return preferences == null || preferences.isEmpty()
+                ? Collections.emptyMap()
+                : Map.of("preferences", toDTOList(preferences));
     }
 
     @Named("genreToGenreList")

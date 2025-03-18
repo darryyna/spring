@@ -58,4 +58,12 @@ public class MovieGenreService {
         return movieGenreRepository.findByMovie_MovieId(movieId);
     }
 
+    public MovieGenre updateMovieGenre(Long movieGenreId, MovieGenre movieGenre) throws ResourceNotFoundException {
+        if (!movieGenreRepository.existsById(movieGenreId)) {
+            throw new ResourceNotFoundException("MovieGenre with id " + movieGenreId + " not found");
+        }
+        movieGenre.setMovieGenreId(movieGenreId);
+        return movieGenreRepository.save(movieGenre);
+    }
+
 }

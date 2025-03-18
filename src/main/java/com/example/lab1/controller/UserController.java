@@ -1,6 +1,7 @@
 package com.example.lab1.controller;
 
 import com.example.lab1.DTO.UserDTO;
+import com.example.lab1.model.Movie;
 import com.example.lab1.model.User;
 import com.example.lab1.mapper.UserMapper;
 import com.example.lab1.service.UserService;
@@ -45,5 +46,11 @@ public class UserController {
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) throws ResourceNotFoundException {
         userService.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User user) throws ResourceNotFoundException {
+        User updatedUser = userService.updateUser(id, user);
+        return ResponseEntity.ok(updatedUser);
     }
 }

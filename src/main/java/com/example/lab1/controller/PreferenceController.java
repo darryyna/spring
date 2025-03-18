@@ -37,8 +37,9 @@ public class PreferenceController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PreferenceDTO> updatePreference(@PathVariable Long id, @RequestBody PreferenceDTO preferenceDTO) throws ResourceNotFoundException {
-        Preference updatedPreference = preferenceService.updatePreference(id, preferenceDTO);
+    public ResponseEntity<PreferenceDTO> updatePreference(@PathVariable Long id, @RequestBody Preference preference) throws ResourceNotFoundException {
+        Preference existingPreference = preferenceService.findPreferenceById(id);
+        Preference updatedPreference = preferenceService.updatePreference(id, preference);
         return ResponseEntity.ok(preferenceMapper.toDTO(updatedPreference));
     }
 

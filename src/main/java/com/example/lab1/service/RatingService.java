@@ -1,50 +1,41 @@
 package com.example.lab1.service;
 
+import com.example.lab1.DTO.RatingDTO;
+import com.example.lab1.mapper.RatingMapper;
 import com.example.lab1.model.Rating;
-import com.example.lab1.model.Movie;
-import com.example.lab1.model.User;
-import com.example.lab1.repository.MovieRepository;
 import com.example.lab1.repository.RatingRepository;
+import com.example.lab1.repository.MovieRepository;
 import com.example.lab1.repository.UserRepository;
 import com.example.lab1.service.customException.DuplicateResourceException;
 import com.example.lab1.service.customException.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
 @Service
 public class RatingService {
     private final RatingRepository ratingRepository;
-    private final UserRepository userRepository;
     private final MovieRepository movieRepository;
+    private final RatingMapper ratingMapper;
+
 
     @Autowired
-    public RatingService(RatingRepository ratingRepository, UserRepository userRepository, MovieRepository movieRepository) {
+    public RatingService(RatingRepository ratingRepository, MovieRepository movieRepository, RatingMapper ratingMapper) {
         this.ratingRepository = ratingRepository;
-        this.userRepository = userRepository;
         this.movieRepository = movieRepository;
+        this.ratingMapper = ratingMapper;
     }
 
     public List<Rating> findAll() {
         return ratingRepository.findAll();
     }
 
-    public Rating createRating(Rating rating, String username, String movieTitle) throws DuplicateResourceException {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with username: " + username));
-
-        Movie movie = movieRepository.findMovieByTitle(movieTitle)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Movie not found with title: " + movieTitle));
-
-        if (ratingRepository.existsByUserAndMovie(user, movie)) {
+    public Rating createRating(RatingDTO ratingDTO) throws DuplicateResourceException, ResourceNotFoundException {
+        Rating rating = ratingMapper.toEntity(ratingDTO);
+        if (ratingRepository.existsByUserAndMovie(rating.getUser(), rating.getMovie())) {
             throw new DuplicateResourceException("User has already rated this movie.");
         }
-
-        rating.setUser(user);
-        rating.setMovie(movie);
 
         return ratingRepository.save(rating);
     }
@@ -54,5 +45,13 @@ public class RatingService {
             throw new ResourceNotFoundException("Movie with id " + movieId + " not found");
         }
         return ratingRepository.findRatingsByMovie_MovieId(movieId);
+    }
+
+    public Rating updateRating(Long ratingId, Rating rating) throws ResourceNotFoundException {
+        Rating existingRating = ratingRepository.findById(ratingId)
+                .orElseThrow(() -> new ResourceNotFoundException("Rating with id " + ratingId + " not found"));
+
+        rating.setRatingId(ratingId);
+        return ratingRepository.save(existingRating);
     }
 }
